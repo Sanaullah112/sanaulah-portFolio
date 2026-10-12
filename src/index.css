@@ -1,0 +1,237 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-light: #F3F8EF;
+    --bg-dark: #0D0D0D;
+    --primary: #79FF26;
+    --primary-gradient-1: #b1f36a;
+    --primary-gradient-2: #9AF23A;
+    --primary-light: #B8FF78;
+    --primary-accent: #D9FFB8;
+    --text-muted: #959595;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg-light);
+}
+
+
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#smooth-wrapper {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+#smooth-content {
+  min-height: 100vh;
+  will-change: transform;
+}
+
+
+/* Custom scrollbar to match the dark aesthetic */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+
+.navbar1 {
+  font-family: "Lufga", sans-serif;
+}
+
+.navbar2 {
+  font-family: "Lufga", sans-serif;
+}
+
+body {
+  font-family: 'Raleway';
+}
+
+
+@custom-variant dark (&:where(.dax, .dark *));
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100;
+  }
+
+  * {
+    @apply border-gray-200 dark:border-gray-800;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-700 rounded-full;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800;
+  }
+
+  .skeleton {
+    @apply animate-pulse bg-gray-200 dark:bg-gray-800 rounded-md;
+  }
+}
+
+
+
+/*
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PORTFOLIO THEME SYSTEM
+ * Paste this entire block at the BOTTOM of your src/index.css
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
+ * How it works:
+ *   • PortfolioThemeContext writes CSS custom properties to <html>
+ *   • The rules below use those variables to override your section backgrounds,
+ *     card backgrounds, text colours, and accent colours across the whole site.
+ *   • Your existing Tailwind classes stay untouched — these rules win via
+ *     specificity (`html[data-portfolio-theme]` > plain class selector).
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+/* ── Section / page backgrounds ─────────────────────────────────────────── */
+html[data-portfolio-theme] body,
+html[data-portfolio-theme] main {
+  background-color: var(--pt-bg) !important;
+  color: var(--pt-text-primary) !important;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+html[data-portfolio-theme] section {
+  background-color: var(--pt-bg) !important;
+  transition: background-color 0.4s ease;
+}
+
+/* ── Card / surface elements ─────────────────────────────────────────────── */
+html[data-portfolio-theme] .bg-white {
+  background-color: var(--pt-card-bg) !important;
+  transition: background-color 0.4s ease;
+}
+
+/* ── Primary text ────────────────────────────────────────────────────────── */
+html[data-portfolio-theme] .text-\[\#0D0D0D\] {
+  color: var(--pt-text-primary) !important;
+}
+
+/* ── Muted / secondary text ──────────────────────────────────────────────── */
+html[data-portfolio-theme] .text-\[\#959595\] {
+  color: var(--pt-text-muted) !important;
+}
+
+/* ── Accent colour (orange → theme accent) ───────────────────────────────── */
+html[data-portfolio-theme] .text-\[\#79FF26\] {
+  color: var(--pt-accent) !important;
+}
+
+html[data-portfolio-theme] .bg-\[\#79FF26\] {
+  background-color: var(--pt-accent) !important;
+  transition: background-color 0.3s ease;
+}
+
+html[data-portfolio-theme] .border-\[\#79FF26\] {
+  border-color: var(--pt-accent) !important;
+}
+
+html[data-portfolio-theme] .hover\:bg-\[\#79FF26\]:hover {
+  background-color: var(--pt-accent) !important;
+}
+
+html[data-portfolio-theme] .hover\:text-\[\#79FF26\]:hover {
+  color: var(--pt-accent) !important;
+}
+
+html[data-portfolio-theme] .shadow-\[\#79FF26\/20\] {
+  --tw-shadow-color: var(--pt-shadow) !important;
+}
+
+/* ── Navbar ──────────────────────────────────────────────────────────────── */
+/* html[data-portfolio-theme] nav,
+html[data-portfolio-theme] header {
+  background-color: var(--pt-navbar-bg) !important;
+  border-color:     var(--pt-border) !important;
+  transition: background-color 0.4s ease;
+} */
+
+/* ── Badges / labels ─────────────────────────────────────────────────────── */
+html[data-portfolio-theme] .bg-\[\#F2FFE8\],
+html[data-portfolio-theme] .bg-\[\#FFF8F4\] {
+  background-color: var(--pt-badge-bg) !important;
+}
+
+/* ── Input / textarea focus ring ─────────────────────────────────────────── */
+html[data-portfolio-theme] input:focus,
+html[data-portfolio-theme] textarea:focus,
+html[data-portfolio-theme] select:focus {
+  border-color: var(--pt-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pt-accent) 20%, transparent) !important;
+}
+
+/* ── Smooth transition on all colour changes ─────────────────────────────── */
+html[data-portfolio-theme] *,
+html[data-portfolio-theme] *::before,
+html[data-portfolio-theme] *::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 0.35s;
+  transition-timing-function: ease;
+}
+
+/* ── Dark / Midnight themes: invert subtle shadows ───────────────────────── */
+html[data-portfolio-theme="dark"] .shadow-sm,
+html[data-portfolio-theme="midnight"] .shadow-sm {
+  --tw-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: var(--tw-shadow) !important;
+}
+
+html[data-portfolio-theme="dark"] .shadow-md,
+html[data-portfolio-theme="midnight"] .shadow-md {
+  --tw-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.6) !important;
+  box-shadow: var(--tw-shadow) !important;
+}
+
+/* ── Dark / Midnight: footer & marquee strips ────────────────────────────── */
+html[data-portfolio-theme="dark"] footer,
+html[data-portfolio-theme="midnight"] footer {
+  background-color: var(--pt-surface) !important;
+}
