@@ -11,6 +11,7 @@ import { resumeService } from '../services/resumeService';
 import { isValidPdf } from '../utils/validators';
 import { speak } from '../utils/speak';
 import { formatDate, formatBytes } from '../utils/formatters';
+import { getAssetUrl } from '../utils/assetUrl';
 
 const AdminResume = () => {
   const [resume, setResume] = useState(null);
@@ -95,6 +96,7 @@ const AdminResume = () => {
   };
 
   if (loading) return <Loader />;
+  const resumeUrl = getAssetUrl(resume?.fileUrl || resume?.url);
 
   return (
     <div>
@@ -126,7 +128,7 @@ const AdminResume = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <a href={resume.fileUrl || resume.url} target="_blank" rel="noreferrer">
+                <a href={resumeUrl} target="_blank" rel="noreferrer">
                   <Button variant="outline" icon={FiDownload}>Download</Button>
                 </a>
                 <Button variant="danger" icon={FiTrash2} onClick={handleDelete}>
@@ -137,7 +139,7 @@ const AdminResume = () => {
 
             <div className="rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
               <iframe
-                src={resume.fileUrl || resume.url}
+                src={resumeUrl}
                 title="Resume Preview"
                 className="w-full h-[500px]"
               />

@@ -1,6 +1,8 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import { FaWhatsapp } from "react-icons/fa6";
+import api from "../services/api";
+import { ENDPOINTS } from "../config/endpoints";
 
 // ─── Voice Feedback ──────────────────────────────────────────────────────────
 const speak = (text) => {
@@ -37,8 +39,10 @@ const Contact = () => {
     loading: false,
     success: null,
     error: null,
+    whatsappUrl: null,
   });
   const formRef = useRef(null);
+  const submissionInProgress = useRef(false);
 
   // ── Input handler ──────────────────────────────────────────────────────────
   const handleChange = (e) => {
@@ -63,6 +67,8 @@ const Contact = () => {
   // ── Submit handler ─────────────────────────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submissionInProgress.current) return;
+
     setStatus({ loading: false, success: null, error: null });
 
     const validationErrors = validate();
@@ -72,36 +78,55 @@ const Contact = () => {
       return;
     }
 
+    submissionInProgress.current = true;
     setStatus({ loading: true, success: null, error: null });
+    const submittedForm = { ...formData };
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"}/contact`,
-        formData
-      );
+      const response = await api.post(ENDPOINTS.contact.submit, submittedForm);
 
       if (response.data.success) {
+        const whatsappMessage = [
+          "👋 Hello Sanaullah!",
+          "",
+          "💼 I just sent a project inquiry through your portfolio.",
+          "",
+          `👤 Name: ${submittedForm.fullName.trim()}`,
+          `📧 Email: ${submittedForm.yourEmail.trim()}`,
+          `📱 Phone: ${submittedForm.phoneNumber.trim() || "Not provided"}`,
+          `💰 Budget: ${submittedForm.budget.trim() || "Not provided"}`,
+          "",
+          "📝 Project details:",
+          submittedForm.message.trim(),
+          "",
+          "🤝 Please let me know the next steps. Thank you!",
+        ].join("\n");
+        const whatsappUrl = `https://wa.me/923099369195?text=${encodeURIComponent(whatsappMessage)}`;
+
         setStatus({
           loading: false,
-          success: "Your message has been sent successfully! I will get back to you soon.",
+          success: "Your message was sent by email. You can also send it directly on WhatsApp:",
           error: null,
+          whatsappUrl,
         });
         setFormData(INITIAL_FORM);
         setErrors({});
 
         setTimeout(() => {
           speak(
-            "Thank you! Your message has been sent successfully. I will get back to you as soon as possible."
+            "Thank you! Your message was sent by email. I will get back to you as soon as possible."
           );
         }, 300);
+      } else {
+        throw new Error(response.data.message || "Failed to send message. Please try again.");
       }
     } catch (err) {
-      console.error("Contact form error:", err);
-      const msg =
-        err.response?.data?.message ||
-        "Failed to send message. Please try again.";
+      const msg = err.message || "Failed to send message. Please try again.";
+      console.error(`Contact form submission failed${err.status ? ` (${err.status})` : ""}: ${msg}`, err);
       setStatus({ loading: false, success: null, error: msg });
       speak("Something went wrong. Please try again.");
+    } finally {
+      submissionInProgress.current = false;
     }
   };
 
@@ -323,17 +348,18 @@ const Contact = () => {
                 <motion.button
                   type="submit"
                   disabled={status.loading}
+                  aria-busy={status.loading}
                   whileHover={{ scale: status.loading ? 1 : 1.04, boxShadow: "0px 10px 25px rgba(154, 242, 58, 0.4)" }}
                   whileTap={{ scale: status.loading ? 1 : 0.96 }}
-                  className="relative whitespace-nowrap bg-[#9AF23A] text-white font-bold px-14 py-4 rounded-full text-base tracking-wide uppercase disabled:opacity-60 disabled:cursor-not-allowed transition-opacity shadow-[0_4px_15px_rgba(154,242,58,0.25)]"
+                  className="relative min-w-48 whitespace-nowrap bg-[#9AF23A] text-white font-bold px-8 sm:px-10 py-3.5 rounded-full text-sm sm:text-base tracking-wide uppercase disabled:opacity-60 disabled:cursor-wait transition-opacity shadow-[0_4px_15px_rgba(154,242,58,0.25)]"
                 >
                   {status.loading ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-4 w-4 shrink-0 text-white" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                       </svg>
-                      Sending Portfolio Form...
+                      Sending...
                     </span>
                   ) : (
                     "Send Message"
@@ -348,12 +374,23 @@ const Contact = () => {
                       initial={{ opacity: 0, scale: 0.9, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9 }}
-                      className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold text-sm px-6 py-3.5 rounded-xl mt-2 shadow-sm"
+                      className="flex flex-col sm:flex-row sm:items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold text-sm px-6 py-3.5 rounded-xl mt-2 shadow-sm"
                     >
                       <svg className="w-5 h-5 shrink-0 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                       {status.success}
+                      {status.whatsappUrl && (
+                        <a
+                          href={status.whatsappUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 font-bold text-white transition-colors hover:bg-[#1DA851]"
+                        >
+                          <FaWhatsapp className="h-5 w-5" aria-hidden="true" />
+                          Send on WhatsApp
+                        </a>
+                      )}
                     </motion.div>
                   )}
                   {status.error && (

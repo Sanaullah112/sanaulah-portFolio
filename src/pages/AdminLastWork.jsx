@@ -15,6 +15,7 @@ import { useCrud } from '../hooks/useCrud';
 import { useDebounce } from '../hooks/useDebounce';
 import { lastWorkService } from '../services/lastWorkService';
 import { truncate } from '../utils/formatters';
+import { getAssetUrl } from '../utils/assetUrl';
 import toast from 'react-hot-toast';
 
 // CHANGED: added githubLink to the default shape
@@ -77,7 +78,7 @@ const AdminLastWork = () => {
   const columns = [
     {
       key: 'image', header: 'Image',
-      render: (row) => <img src={row.imageUrl || row.image} alt={row.title} className="h-10 w-10 rounded-lg object-cover" />,
+      render: (row) => <img src={getAssetUrl(row.imageUrl || row.image)} alt={row.title} className="h-10 w-10 rounded-lg object-cover" />,
     },
     { key: 'title', header: 'Title' },
     { key: 'category', header: 'Category' },

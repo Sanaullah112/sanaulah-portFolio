@@ -17,6 +17,7 @@ import { useDebounce } from '../hooks/useDebounce';
 import { projectService } from '../services/projectService';
 import { PROJECT_CATEGORIES } from '../config/endpoints';
 import { isValidUrl } from '../utils/validators';
+import { getAssetUrl } from '../utils/assetUrl';
 import toast from 'react-hot-toast';
 
 const emptyProject = {
@@ -90,7 +91,7 @@ const AdminProject = () => {
     {
       key: 'image', header: 'Image',
       render: (row) => (
-        <img src={row.imageUrl || row.image} alt={row.name} className="h-10 w-10 rounded-lg object-cover" />
+        <img src={getAssetUrl(row.imageUrl || row.image)} alt={row.name} className="h-10 w-10 rounded-lg object-cover" />
       ),
     },
     { key: 'name', header: 'Name' },

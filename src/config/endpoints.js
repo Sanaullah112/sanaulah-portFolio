@@ -3,11 +3,14 @@
  * ----------------------------------------
  * Change your backend route paths here ONLY.
  * Nothing else in the app should hardcode a URL string.
- * Update BASE_URL via the .env file (VITE_API_BASE_URL).
+ * Set VITE_API_BASE_URL to the backend API URL in each deployment environment.
  */
 
-export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-
+const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+export const BASE_URL = (configuredBaseUrl || (
+  import.meta.env.DEV ? 'http://localhost:5000/api' : '/api'
+)).replace(/\/+$/, '');
+ 
 export const ENDPOINTS = {
   auth: {
     login: '/auth/login',
@@ -44,6 +47,9 @@ export const ENDPOINTS = {
   },
   dashboard: {
     stats: '/dashboard/stats',
+  },
+  contact: {
+    submit: '/contact',
   },
 };
 

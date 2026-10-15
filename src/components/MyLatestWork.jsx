@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { BASE_URL } from "../config/endpoints";
+import { getAssetUrl } from "../utils/assetUrl";
 import bgImg from "../assets/bg.png";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -268,7 +269,7 @@ const MyLatestWork = () => {
 
                 {/* Image */}
                 <img
-                  src={work.imageUrl}
+                  src={getAssetUrl(work.imageUrl)}
                   alt={work.title}
                   className="relative z-[1] w-full h-auto object-cover rounded-t-[22px] shadow-2xl object-top pt-6 pointer-events-none transform transition-transform duration-[3.5s] ease-in-out group-hover:translate-y-[calc(-100%+240px)]"
                   style={{

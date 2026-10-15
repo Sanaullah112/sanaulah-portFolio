@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BASE_URL } from "../config/endpoints";
+import { getAssetUrl } from "../utils/assetUrl";
 
 const AUTOPLAY_MS = 4000;
 
@@ -216,7 +217,7 @@ const PeopleTalk = () => {
                       }
                     >
                       <img
-                        src={item.imageUrl}
+                        src={getAssetUrl(item.imageUrl)}
                         alt={item.name}
                         className="w-full h-full object-cover rounded-full pointer-events-none"
                         draggable={false}

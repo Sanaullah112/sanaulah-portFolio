@@ -24,8 +24,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error?.response?.status;
-    const message =
-      error?.response?.data?.message || error?.message || 'Something went wrong';
+    const message = error?.response?.data?.message || (
+      error?.response
+        ? error?.message || 'The server could not complete the request.'
+        : 'Could not connect to the server. Check that the backend is running and its API URL is configured correctly.'
+    );
 
     if (status === 401) {
       localStorage.removeItem('admin_token');
@@ -35,7 +38,9 @@ api.interceptors.response.use(
       }
     }
 
-    return Promise.reject({ status, message, raw: error });
+    error.message = message;
+    error.status = status;
+    return Promise.reject(error);
   }
 );
 

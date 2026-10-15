@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { BASE_URL } from "../config/endpoints";
+import { getAssetUrl } from "../utils/assetUrl";
 
 // Staggered Container Variants for entry orchestration
 const containerVariants = {
@@ -159,7 +160,7 @@ const ArchiveProjectCard = ({ project, onViewDetails }) => {
 
         <img
           ref={imgRef}
-          src={project.imageUrl}
+          src={getAssetUrl(project.imageUrl)}
           alt={project.name}
           className="w-full h-auto object-cover object-top will-change-transform pointer-events-none"
           loading="lazy"
@@ -328,7 +329,7 @@ const ProjectModal = ({ project, onClose }) => {
         >
           <img
             ref={imgRef}
-            src={project.imageUrl}
+            src={getAssetUrl(project.imageUrl)}
             alt={project.name}
             className="w-full h-auto object-cover object-top will-change-transform"
           />

@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { FiUploadCloud, FiX, FiImage } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { isValidImage } from '../../utils/validators';
+import { getAssetUrl } from '../../utils/assetUrl';
 
 /**
  * Drag & drop image upload with preview.
@@ -9,7 +10,7 @@ import { isValidImage } from '../../utils/validators';
  * onChange(file) is called with the raw File object
  */
 const ImageUpload = ({ value, onChange, label = 'Image', error }) => {
-  const [preview, setPreview] = useState(value || null);
+  const [preview, setPreview] = useState(getAssetUrl(value) || null);
   const [dragOver, setDragOver] = useState(false);
 
   const handleFile = useCallback(

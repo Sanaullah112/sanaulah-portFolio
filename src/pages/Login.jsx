@@ -44,14 +44,16 @@ const onSubmit = async (values) => {
         <Input
           label="Email"
           type="email"
+          autoComplete="username"
           icon={FiMail}
-          placeholder="admin.example.com"
+          placeholder="admin@example.com"
           error={errors.email?.message}
           {...register('email', { required: 'Email is required' })}
         />
         <Input
           label="Password"
           type="password"
+          autoComplete="current-password"
           icon={FiLock}
           placeholder="••••••••"
           error={errors.password?.message}

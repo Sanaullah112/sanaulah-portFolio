@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import api from "../services/api";
+import { ENDPOINTS } from "../config/endpoints";
 import img from "../assets/sanaullah.png";
 import img1 from "../assets/Group.png";
 import micLogo from "../assets/Microphone.png";
@@ -65,16 +66,13 @@ const HireModal = ({ onClose }) => {
     if (!form.name || !form.email || !form.message) return;
     setStatus("sending");
     try {
-      await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"}/contact`,
-        {
-          fullName: form.name,
-          yourEmail: form.email,
-          message: `[HIRE REQUEST]\n${form.message}`,
-          phoneNumber: "",
-          budget: "",
-        },
-      );
+      await api.post(ENDPOINTS.contact.submit, {
+        fullName: form.name,
+        yourEmail: form.email,
+        message: `[HIRE REQUEST]\n${form.message}`,
+        phoneNumber: "",
+        budget: "",
+      });
       setStatus("ok");
     } catch {
       setStatus("err");
@@ -204,7 +202,12 @@ const HireModal = ({ onClose }) => {
             {/* Quick contact alternatives */}
             <div className="flex items-center gap-3 pt-1 flex-wrap">
               <a
-                href="https://wa.me/923175361139"
+                href={`https://wa.me/923099369195?text=${encodeURIComponent(
+                  "👋 Hi Sanaullah! I found your portfolio and would love to discuss a project with you. 🚀\n\n" +
+                  "💼 I’m looking for a skilled MERN stack developer to help bring my idea to life. " +
+                  "Could we talk about the project scope, timeline, and next steps? 🤝\n\n" +
+                  "📩 Please let me know when you’re available. Thank you!"
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 text-xs text-[#25D366] font-semibold hover:underline"
@@ -221,7 +224,9 @@ const HireModal = ({ onClose }) => {
               </a>
               <span className="text-gray-300 text-xs">|</span>
               <a
-                href="mailto:sanaarman033@gmail.com"
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=sanaarman033@gmail.com&su=Contact%20Request"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-1.5 text-xs text-[#79FF26] font-semibold hover:underline"
               >
                 <svg

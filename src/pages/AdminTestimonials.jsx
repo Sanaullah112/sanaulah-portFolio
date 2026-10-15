@@ -15,6 +15,7 @@ import { useCrud } from '../hooks/useCrud';
 import { useDebounce } from '../hooks/useDebounce';
 import { testimonialService } from '../services/testimonialService';
 import { isValidUrl } from '../utils/validators';
+import { getAssetUrl } from '../utils/assetUrl';
 import toast from 'react-hot-toast';
 
 const emptyTestimonial = { name: '', jobTitle: '', company: '', review: '', rating: 5, linkedin: '' };
@@ -73,7 +74,7 @@ const AdminTestimonials = () => {
   const columns = [
     {
       key: 'image', header: 'Photo',
-      render: (row) => <img src={row.imageUrl || row.image} alt={row.name} className="h-10 w-10 rounded-full object-cover" />,
+      render: (row) => <img src={getAssetUrl(row.imageUrl || row.image)} alt={row.name} className="h-10 w-10 rounded-full object-cover" />,
     },
     { key: 'name', header: 'Name' },
     {
