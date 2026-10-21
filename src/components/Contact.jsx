@@ -1,7 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa6";
-import api from "../services/api";
+import api, { wakeServer } from "../services/api";
 import { ENDPOINTS } from "../config/endpoints";
 
 // ─── Voice Feedback ──────────────────────────────────────────────────────────
@@ -35,6 +35,7 @@ const INITIAL_FORM = {
 const Contact = () => {
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
+  const [slowHint, setSlowHint] = useState(false);
   const [status, setStatus] = useState({
     loading: false,
     success: null,
@@ -43,6 +44,21 @@ const Contact = () => {
   });
   const formRef = useRef(null);
   const submissionInProgress = useRef(false);
+
+  // Wake a sleeping server (e.g. Render free tier) as soon as the page loads
+  useEffect(() => {
+    wakeServer();
+  }, []);
+
+  // Show a friendly hint if the request takes longer than a few seconds
+  useEffect(() => {
+    if (!status.loading) {
+      setSlowHint(false);
+      return;
+    }
+    const timer = setTimeout(() => setSlowHint(true), 5000);
+    return () => clearTimeout(timer);
+  }, [status.loading]);
 
   // ── Input handler ──────────────────────────────────────────────────────────
   const handleChange = (e) => {
@@ -57,7 +73,7 @@ const Contact = () => {
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
     if (!formData.yourEmail.trim()) {
       newErrors.yourEmail = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.yourEmail)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.yourEmail.trim())) {
       newErrors.yourEmail = "Enter a valid email address";
     }
     if (!formData.message.trim()) newErrors.message = "Message is required";
@@ -69,7 +85,7 @@ const Contact = () => {
     e.preventDefault();
     if (submissionInProgress.current) return;
 
-    setStatus({ loading: false, success: null, error: null });
+    setStatus({ loading: false, success: null, error: null, whatsappUrl: null });
 
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -79,8 +95,14 @@ const Contact = () => {
     }
 
     submissionInProgress.current = true;
-    setStatus({ loading: true, success: null, error: null });
-    const submittedForm = { ...formData };
+    setStatus({ loading: true, success: null, error: null, whatsappUrl: null });
+    const submittedForm = {
+      fullName: formData.fullName.trim(),
+      yourEmail: formData.yourEmail.trim(),
+      phoneNumber: formData.phoneNumber.trim(),
+      budget: formData.budget.trim(),
+      message: formData.message.trim(),
+    };
 
     try {
       const response = await api.post(ENDPOINTS.contact.submit, submittedForm);
@@ -91,13 +113,13 @@ const Contact = () => {
           "",
           "💼 I just sent a project inquiry through your portfolio.",
           "",
-          `👤 Name: ${submittedForm.fullName.trim()}`,
-          `📧 Email: ${submittedForm.yourEmail.trim()}`,
-          `📱 Phone: ${submittedForm.phoneNumber.trim() || "Not provided"}`,
-          `💰 Budget: ${submittedForm.budget.trim() || "Not provided"}`,
+          `👤 Name: ${submittedForm.fullName}`,
+          `📧 Email: ${submittedForm.yourEmail}`,
+          `📱 Phone: ${submittedForm.phoneNumber || "Not provided"}`,
+          `💰 Budget: ${submittedForm.budget || "Not provided"}`,
           "",
           "📝 Project details:",
-          submittedForm.message.trim(),
+          submittedForm.message,
           "",
           "🤝 Please let me know the next steps. Thank you!",
         ].join("\n");
@@ -105,7 +127,7 @@ const Contact = () => {
 
         setStatus({
           loading: false,
-          success: "Your message was sent by email. You can also send it directly on WhatsApp:",
+          success: "Your message was sent successfully! You can also message me directly on WhatsApp:",
           error: null,
           whatsappUrl,
         });
@@ -113,9 +135,7 @@ const Contact = () => {
         setErrors({});
 
         setTimeout(() => {
-          speak(
-            "Thank you! Your message was sent by email. I will get back to you as soon as possible."
-          );
+          speak("Thank you! Your message was sent. I will get back to you as soon as possible.");
         }, 300);
       } else {
         throw new Error(response.data.message || "Failed to send message. Please try again.");
@@ -123,7 +143,7 @@ const Contact = () => {
     } catch (err) {
       const msg = err.message || "Failed to send message. Please try again.";
       console.error(`Contact form submission failed${err.status ? ` (${err.status})` : ""}: ${msg}`, err);
-      setStatus({ loading: false, success: null, error: msg });
+      setStatus({ loading: false, success: null, error: msg, whatsappUrl: null });
       speak("Something went wrong. Please try again.");
     } finally {
       submissionInProgress.current = false;
@@ -135,17 +155,17 @@ const Contact = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.1 }
-    }
+      transition: { staggerChildren: 0.15, delayChildren: 0.1 },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { type: "spring", stiffness: 100, damping: 20 } 
-    }
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 100, damping: 20 },
+    },
   };
 
   // ── Field class helper (Includes custom focus background & glow animations) ──
@@ -161,14 +181,13 @@ const Contact = () => {
       id="contact"
       className="w-full bg-[#F3F8EF] py-24 px-4 sm:px-6 md:px-8 xl:px-16 select-none overflow-hidden"
     >
-      <motion.div 
+      <motion.div
         className="max-w-[1320px] mx-auto text-center"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={containerVariants}
       >
-
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <motion.div className="max-w-2xl mx-auto mb-20" variants={itemVariants}>
           <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#0D0D0D] mb-4">
@@ -183,10 +202,8 @@ const Contact = () => {
 
         {/* ── Grid Layout ─────────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start text-left">
-
           {/* LEFT: Contact Informational Cards */}
           <motion.div className="lg:col-span-4 flex flex-col gap-6 w-full" variants={itemVariants}>
-
             {/* WhatsApp */}
             <motion.a
               whileHover={{ y: -6, scale: 1.02, boxShadow: "0px 20px 30px -10px rgba(154,242,58,0.15)" }}
@@ -260,11 +277,10 @@ const Contact = () => {
                 </span>
               </div>
             </motion.a>
-
           </motion.div>
 
-          {/* RIGHT: Contact Form Layout (Upgraded with animated container hover wrapper) */}
-          <motion.div 
+          {/* RIGHT: Contact Form Layout */}
+          <motion.div
             className="lg:col-span-8 w-full rounded-2xl border border-gray-200/30 transition-all duration-500 ease-out"
             whileHover={{ y: -4, boxShadow: "0 25px 50px -12px rgba(13,13,13,0.04)" }}
           >
@@ -366,6 +382,20 @@ const Contact = () => {
                   )}
                 </motion.button>
 
+                {/* Slow-server hint */}
+                <AnimatePresence>
+                  {status.loading && slowHint && (
+                    <motion.p
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="text-[#959595] text-xs sm:text-sm text-center"
+                    >
+                      The server is waking up — this can take a few extra seconds. Please keep this page open.
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+
                 {/* Status alerts */}
                 <AnimatePresence mode="wait">
                   {status.success && (
@@ -411,7 +441,6 @@ const Contact = () => {
               </motion.div>
             </form>
           </motion.div>
-
         </div>
       </motion.div>
     </section>

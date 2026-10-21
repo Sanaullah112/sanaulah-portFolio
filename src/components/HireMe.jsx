@@ -169,6 +169,13 @@ const HireMe = () => {
         </motion.div>
 
           {/* ── CTA Buttons ─────────────────────────────────────────── */}
+          <a
+            href="#contact"
+            className="mt-8 inline-flex items-center justify-center rounded-full bg-[#79FF26] px-7 py-3.5 font-bold text-[#0D0D0D] transition-transform hover:scale-[1.03] focus:outline-none focus:ring-4 focus:ring-[#79FF26]/30"
+          >
+            Discuss a project
+          </a>
+
           {!resumeLoading && (
             <div className="mt-10 flex flex-wrap items-center gap-4">
 
