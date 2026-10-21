@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import api from "../services/api";
+import { ENDPOINTS } from "../config/endpoints";
+import { getAssetUrl } from "../utils/assetUrl";
 
 // ─── Voice Feedback ──────────────────────────────────────────────────────────
 const speak = (text) => {
@@ -60,9 +63,9 @@ const HireMe = () => {
   useEffect(() => {
     const fetchResume = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"}/resume`
-        );
+        const res = await api.get(ENDPOINTS.resume.get);
+
+
         setResume(res.data?.resume || res.data?.data || null);
       } catch {
         // No resume uploaded yet — buttons stay hidden
@@ -93,7 +96,7 @@ const HireMe = () => {
     setDownloading(true);
 
     try {
-      const response = await axios.get(resume.fileUrl, {
+      const response = await axios.get(getAssetUrl(resume.fileUrl), {
         responseType: "blob",
       });
 
@@ -358,6 +361,7 @@ const HireMe = () => {
                   </motion.h3>
                 </div>
               </motion.div>
+    
             );
           })}
         </div>
@@ -425,7 +429,7 @@ const HireMe = () => {
 
               {/* PDF iframe */}
               <iframe
-                src={resume.fileUrl}
+                src={getAssetUrl(resume.fileUrl)}
                 title="Resume Preview"
                 className="flex-1 w-full border-0"
               />

@@ -6,10 +6,25 @@
  * Set VITE_API_BASE_URL to the backend API URL in each deployment environment.
  */
 
-const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
-export const BASE_URL = (configuredBaseUrl || (
-  import.meta.env.DEV ? 'http://localhost:5000/api' : '/api'
-)).replace(/\/+$/, '');
+const rawEnvUrl = (
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.VITE_BACKEND_URL ||
+  ''
+).trim();
+
+// Normalize URL: remove any trailing slashes
+const cleanUrl = rawEnvUrl.replace(/\/+$/, '');
+
+// Ensure BASE_URL for API calls always ends in /api
+export const BASE_URL = cleanUrl
+  ? (cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`)
+  : (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
+
+// BACKEND_ORIGIN for static assets/uploads (e.g. https://xxx.onrender.com or http://localhost:5000)
+export const BACKEND_ORIGIN = cleanUrl
+  ? cleanUrl.replace(/\/api\/?$/i, '')
+  : (import.meta.env.DEV ? 'http://localhost:5000' : '');
  
 export const ENDPOINTS = {
   auth: {

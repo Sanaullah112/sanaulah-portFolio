@@ -1,14 +1,11 @@
 import axios from "axios";
+import { BASE_URL } from "../config/endpoints";
 
-// Localhost → local backend. Production → VITE_API_URL (your Render URL).
-const rawBase = import.meta.env.VITE_API_URL?.trim();
-export const BASE_URL = (
-  rawBase || (import.meta.env.DEV ? "http://localhost:5000/api" : "/api")
-).replace(/\/+$/, "");
+export { BASE_URL };
 
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 30000, // covers a Render cold start
+  timeout: 60000, // 60s covers a Render cold start
   headers: { "Content-Type": "application/json" },
 });
 

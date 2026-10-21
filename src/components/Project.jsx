@@ -19,6 +19,16 @@ const GithubIcon = ({ className }) => (
   </svg>
 );
 
+const getProjectFallbackImage = (name, category) =>
+  `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'>
+      <rect width='800' height='600' fill='#0D0D0D'/>
+      <circle cx='400' cy='250' r='90' fill='#79FF26' opacity='0.15'/>
+      <text fill='#79FF26' font-family='sans-serif' font-size='30' font-weight='bold' x='50%' y='260' text-anchor='middle'>${String(name || 'Project').replace(/[<>&'"]/g, '')}</text>
+      <text fill='#959595' font-family='sans-serif' font-size='16' x='50%' y='310' text-anchor='middle'>${String(category || 'Project Preview').replace(/[<>&'"]/g, '')}</text>
+    </svg>`
+  )}`;
+
 const CloseIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -100,6 +110,10 @@ const ProjectCard = ({ project, onViewDetails }) => {
           ref={imgRef}
           src={getAssetUrl(project.imageUrl)}
           alt={project.name}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = getProjectFallbackImage(project.name, project.category);
+          }}
           className="w-full h-auto object-cover object-top pointer-events-none will-change-transform"
         />
 
@@ -275,6 +289,10 @@ const ProjectModal = ({ project, onClose }) => {
             ref={imgRef}
             src={getAssetUrl(project.imageUrl)}
             alt={project.name}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = getProjectFallbackImage(project.name, project.category);
+          }}
             className="w-full h-auto object-cover object-top will-change-transform"
           />
         </div>
