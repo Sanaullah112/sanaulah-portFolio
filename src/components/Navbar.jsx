@@ -114,7 +114,7 @@ const Navbar = () => {
       <button
         key={label}
         onClick={() => handleNav(label)}
-        className={`relative px-5 py-3 rounded-full text-sm font-medium transition-all duration-300 ${isActive ? "text-white font-bold" : "text-white/85 hover:text-white"
+        className={`relative px-5 py-3 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer ${isActive ? "text-white font-bold" : "text-white/85 hover:text-white"
           }`}
       >
         {isActive && (

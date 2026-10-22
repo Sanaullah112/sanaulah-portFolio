@@ -629,7 +629,7 @@ const Hero = () => {
                         d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0"
                       />
                     </defs>
-                    <text className="text-[10px] font-bold uppercase tracking-[2px] fill-black dark:fill-white">
+                    <text className="text-[10px] font-bold uppercase tracking-[2px] fill-black dark:fill-white cursor-pointer">
                       <textPath href="#circlePath">
                         My Introduction • Listen •
                       </textPath>
@@ -859,7 +859,7 @@ const Hero = () => {
                 style={{ color: "var(--pt-text-primary, #0D0D0D)" }}
                 className="text-[40px] font-bold tracking-tight leading-none"
               >
-                10 Years
+                1+ Years
               </h3>
               <p className="text-black text-sm  tracking-wider mt-1 lg:ml-16">
                 Experience

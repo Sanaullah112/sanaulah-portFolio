@@ -21,7 +21,7 @@ export const BASE_URL = cleanUrl
   ? (cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`)
   : (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
 
-// BACKEND_ORIGIN for static assets/uploads (e.g. https://xxx.onrender.com or http://localhost:5000)
+// BACKEND_ORIGIN for static assets/uploads (e.g. https://www.onrender.com or http://localhost:5000)
 export const BACKEND_ORIGIN = cleanUrl
   ? cleanUrl.replace(/\/api\/?$/i, '')
   : (import.meta.env.DEV ? 'http://localhost:5000' : '');
