@@ -9,6 +9,18 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// Admin routes use JWT bearer authentication. Read the token for each request
+// so login/logout changes take effect without recreating the Axios client.
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("admin_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization;
+  }
+  return config;
+});
+
 // Send multipart form data without forcing JSON headers. Axios supplies the
 // multipart boundary and reports upload progress when a callback is provided.
 export const uploadRequest = (url, formData, method = "post", onProgress) =>
