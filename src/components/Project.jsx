@@ -408,6 +408,7 @@ const MyProject = () => {
         }
 
         const resData = await response.json();
+        console.log("Over all project is here :",resData);
 
         const projectArray = Array.isArray(resData)
           ? resData
