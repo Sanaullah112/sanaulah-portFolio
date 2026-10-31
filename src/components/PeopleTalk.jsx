@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BASE_URL } from "../config/endpoints";
@@ -12,54 +13,96 @@ const PeopleTalk = () => {
   const [loading, setLoading] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [progressKey, setProgressKey] = useState(0);
+  const [selectedTestimonial, setSelectedTestimonial] = useState(null);
+
   const autoPlayRef = useRef(null);
 
-  const backgroundColors = ["bg-[#049372]", "bg-[#F3C63F]", "bg-[#ED6B86]", "bg-[#79FF26]"];
+  const backgroundColors = [
+    "bg-[#049372]",
+    "bg-[#F3C63F]",
+    "bg-[#ED6B86]",
+    "bg-[#79FF26]",
+  ];
 
+  // Fetch Testimonials
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
         setLoading(true);
+
         const response = await fetch(`${BASE_URL}/testimonials`);
-        if (!response.ok) throw new Error("Network response was not ok");
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
 
         const rawData = await response.json();
-        const finalArray = Array.isArray(rawData) ? rawData : (rawData.data || []);
+        const finalArray = Array.isArray(rawData)
+          ? rawData
+          : rawData.data || [];
 
         setTestimonials(finalArray);
+
         if (finalArray.length > 0) {
           setCurrentIndex(Math.floor(finalArray.length / 2));
         }
       } catch (error) {
-        console.error("Failed fetching testimonials pipeline stack:", error);
+        console.error(
+          "Failed fetching testimonials pipeline stack:",
+          error
+        );
       } finally {
         setLoading(false);
       }
     };
+
     fetchTestimonials();
   }, []);
 
+  // Next Testimonial
   const handleNext = useCallback(() => {
+    if (testimonials.length <= 1) return;
+
     setDirection(1);
-    setCurrentIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
+
+    setCurrentIndex((prev) =>
+      prev === testimonials.length - 1 ? 0 : prev + 1
+    );
+
     setProgressKey((k) => k + 1);
   }, [testimonials.length]);
 
+  // Previous Testimonial
   const handlePrev = useCallback(() => {
+    if (testimonials.length <= 1) return;
+
     setDirection(-1);
-    setCurrentIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
+
+    setCurrentIndex((prev) =>
+      prev === 0 ? testimonials.length - 1 : prev - 1
+    );
+
     setProgressKey((k) => k + 1);
   }, [testimonials.length]);
 
+  // Go To Specific Testimonial
   const goTo = (index) => {
     setDirection(index > currentIndex ? 1 : -1);
     setCurrentIndex(index);
     setProgressKey((k) => k + 1);
   };
 
+  // Autoplay
   useEffect(() => {
-    if (testimonials.length === 0 || isHovered) {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    if (
+      testimonials.length <= 1 ||
+      isHovered ||
+      selectedTestimonial
+    ) {
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current);
+      }
+
       return;
     }
 
@@ -68,21 +111,42 @@ const PeopleTalk = () => {
     }, AUTOPLAY_MS);
 
     return () => {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current);
+      }
     };
-  }, [testimonials, isHovered, handleNext]);
+  }, [
+    testimonials.length,
+    isHovered,
+    selectedTestimonial,
+    handleNext,
+  ]);
 
+  // Keyboard Navigation
   useEffect(() => {
     const handleKey = (e) => {
+      if (selectedTestimonial) {
+        if (e.key === "Escape") {
+          setSelectedTestimonial(null);
+        }
+        return;
+      }
+
       if (e.key === "ArrowRight") handleNext();
       if (e.key === "ArrowLeft") handlePrev();
     };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [handleNext, handlePrev]);
 
+    window.addEventListener("keydown", handleKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [handleNext, handlePrev, selectedTestimonial]);
+
+  // Drag Navigation
   const handleDragEnd = (_, info) => {
     const threshold = 80;
+
     if (info.offset.x < -threshold) {
       handleNext();
     } else if (info.offset.x > threshold) {
@@ -90,6 +154,7 @@ const PeopleTalk = () => {
     }
   };
 
+  // Loading State
   if (loading || testimonials.length === 0) {
     return (
       <div className="w-full h-72 flex items-center justify-center text-[#79FF26] font-bold bg-[#F3F8EF]">
@@ -100,12 +165,27 @@ const PeopleTalk = () => {
 
   const contentStagger = {
     initial: {},
-    animate: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } },
+    animate: {
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.15,
+      },
+    },
   };
 
   const contentItem = {
-    initial: { opacity: 0, y: 12 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] } },
+    initial: {
+      opacity: 0,
+      y: 12,
+    },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: [0.25, 1, 0.5, 1],
+      },
+    },
   };
 
   return (
@@ -116,35 +196,54 @@ const PeopleTalk = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="max-w-[1320px] mx-auto flex flex-col items-center">
+
+        {/* Section Heading */}
         <div className="text-center max-w-2xl mb-14">
           <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#0D0D0D] mb-3">
-            What People Say <span className="text-[#79FF26]">About My Work</span>
+            What People Say{" "}
+            <span className="text-[#79FF26]">
+              About My Work
+            </span>
           </h2>
+
           <p className="text-[#959595] text-sm sm:text-base font-normal leading-relaxed">
-                Hear from clients and collaborators about their experience working with me and the web applications I’ve built.
+            Hear from clients and collaborators about their
+            experience working with me and the web applications
+            I’ve built.
           </p>
         </div>
 
+        {/* Testimonial Carousel */}
         <div className="w-full relative flex items-center justify-center min-h-[320px] mb-4 [perspective:1200px]">
           <div className="relative flex items-center justify-center w-full max-w-[1000px] h-[260px] [transform-style:preserve-3d]">
-            <AnimatePresence initial={false} mode="popLayout" custom={direction}>
+
+            <AnimatePresence
+              initial={false}
+              mode="popLayout"
+              custom={direction}
+            >
               {testimonials.map((item, index) => {
                 let position = index - currentIndex;
-                if (position < -Math.floor(testimonials.length / 2)) {
+
+                if (
+                  position < -Math.floor(testimonials.length / 2)
+                ) {
                   position += testimonials.length;
                 }
-                if (position > Math.floor(testimonials.length / 2)) {
+
+                if (
+                  position > Math.floor(testimonials.length / 2)
+                ) {
                   position -= testimonials.length;
                 }
 
                 const isCenter = position === 0;
                 const isLeft = position === -1;
                 const isRight = position === 1;
-                const isVisible = isCenter || isLeft || isRight;
+                const isVisible =
+                  isCenter || isLeft || isRight;
 
-                if (!isVisible) {
-                  return null;
-                }
+                if (!isVisible) return null;
 
                 let rotateY = 0;
                 let translateX = "0%";
@@ -166,7 +265,8 @@ const PeopleTalk = () => {
                   opacity = 0.4;
                 }
 
-                const hasLinkedIn = Boolean(item.linkedin) && isCenter;
+                const hasLinkedIn =
+                  Boolean(item.linkedin) && isCenter;
 
                 return (
                   <motion.div
@@ -175,8 +275,15 @@ const PeopleTalk = () => {
                     drag={isCenter ? "x" : false}
                     dragConstraints={{ left: 0, right: 0 }}
                     dragElastic={0.15}
-                    onDragEnd={isCenter ? handleDragEnd : undefined}
-                    initial={{ opacity: 0, scale: 0.7, rotateY: direction > 0 ? 35 : -35, z: -100 }}
+                    onDragEnd={
+                      isCenter ? handleDragEnd : undefined
+                    }
+                    initial={{
+                      opacity: 0,
+                      scale: 0.7,
+                      rotateY: direction > 0 ? 35 : -35,
+                      z: -100,
+                    }}
                     animate={{
                       opacity: opacity,
                       scale: scale,
@@ -190,17 +297,24 @@ const PeopleTalk = () => {
                       scale: 0.7,
                       rotateY: direction > 0 ? -35 : 35,
                       z: -100,
-                      transition: { duration: 0.35, ease: "easeIn" },
+                      transition: {
+                        duration: 0.35,
+                        ease: "easeIn",
+                      },
                     }}
-                    transition={{ type: "spring", stiffness: 260, damping: 26, mass: 0.9 }}
-                    whileDrag={{ cursor: "grabbing", scale: 0.97 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 260,
+                      damping: 26,
+                      mass: 0.9,
+                    }}
+                    whileDrag={{
+                      cursor: "grabbing",
+                      scale: 0.97,
+                    }}
                     onClick={() => {
-                      if (isLeft) {
-                        handlePrev();
-                      }
-                      if (isRight) {
-                        handleNext();
-                      }
+                      if (isLeft) handlePrev();
+                      if (isRight) handleNext();
                     }}
                     className={
                       "absolute w-[92%] sm:w-[460px] lg:w-[480px] bg-white rounded-3xl p-6 md:p-8 shadow-lg border border-gray-100/70 flex flex-col items-center justify-between backface-visible min-h-[250px] transition-shadow duration-300 " +
@@ -208,12 +322,22 @@ const PeopleTalk = () => {
                         ? "shadow-gray-200/50 cursor-grab active:cursor-grabbing"
                         : "hover:opacity-60 shadow-sm cursor-pointer")
                     }
-                    data-cursor-text={isCenter ? "Drag" : isLeft ? "Prev" : "Next"}
+                    data-cursor-text={
+                      isCenter
+                        ? "Drag"
+                        : isLeft
+                        ? "Prev"
+                        : "Next"
+                    }
                   >
+
+                    {/* Profile Image */}
                     <div
                       className={
                         "absolute -top-10 w-20 h-20 rounded-full flex items-center justify-center p-1 shadow-sm " +
-                        backgroundColors[index % backgroundColors.length]
+                        backgroundColors[
+                          index % backgroundColors.length
+                        ]
                       }
                     >
                       <img
@@ -224,26 +348,40 @@ const PeopleTalk = () => {
                       />
                     </div>
 
-                    {isCenter ? (
+                    {/* Quote Icon */}
+                    {isCenter && (
                       <span className="absolute top-4 right-6 text-5xl font-serif text-gray-100 select-none leading-none">
                         &quot;
                       </span>
-                    ) : null}
+                    )}
 
+                    {/* Review Content */}
                     <motion.div
                       variants={contentStagger}
                       initial="initial"
-                      animate={isCenter ? "animate" : "initial"}
+                      animate={
+                        isCenter ? "animate" : "initial"
+                      }
                       className="flex flex-col items-center w-full mt-10 mb-4 flex-grow justify-center relative"
                     >
-                      <motion.div variants={contentItem} className="flex items-center gap-1 mb-2.5 text-[#F3C63F]">
+
+                      {/* Rating */}
+                      <motion.div
+                        variants={contentItem}
+                        className="flex items-center gap-1 mb-2.5 text-[#F3C63F]"
+                      >
                         {[...Array(5)].map((_, i) => {
-                          const filled = i < (item.rating || 5);
+                          const filled =
+                            i < (item.rating || 5);
+
                           return (
                             <svg
                               key={i}
                               className={
-                                "w-3.5 h-3.5 " + (filled ? "fill-current" : "text-gray-200 stroke-current")
+                                "w-3.5 h-3.5 " +
+                                (filled
+                                  ? "fill-current"
+                                  : "text-gray-200 stroke-current")
                               }
                               viewBox="0 0 20 20"
                             >
@@ -253,21 +391,45 @@ const PeopleTalk = () => {
                         })}
                       </motion.div>
 
-                      <motion.p
+                      {/* Review Text + Read More */}
+                      <motion.div
                         variants={contentItem}
-                        className="text-[#959595] text-xs sm:text-sm text-center font-medium leading-relaxed max-w-md line-clamp-3 px-1 italic"
+                        className="flex flex-col items-center w-full"
                       >
-                        {item.review}
-                      </motion.p>
+                        <p className="text-[#959595] text-xs sm:text-sm text-center font-medium leading-relaxed max-w-md line-clamp-3 px-1 italic">
+                          {item.review}
+                        </p>
+
+                        {item.review?.length > 150 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedTestimonial(item);
+                            }}
+                            className="mt-2 text-xs font-bold text-[#112F47] hover:text-[#79FF26] transition-colors underline underline-offset-4"
+                          >
+                            Read Full Review
+                          </button>
+                        )}
+                      </motion.div>
                     </motion.div>
 
+                    {/* Client Information */}
                     <div className="w-full border-t border-gray-100 pt-3.5 text-center relative">
-                      <h3 className="text-lg font-bold text-[#112F47] tracking-tight">{item.name}</h3>
+                      <h3 className="text-lg font-bold text-[#112F47] tracking-tight">
+                        {item.name}
+                      </h3>
+
                       <p className="text-[#959595] text-[11px] sm:text-xs font-semibold tracking-wide mt-0.5">
-                        {item.jobTitle} <span className="text-[#79FF26]">@ {item.company}</span>
+                        {item.jobTitle}{" "}
+                        <span className="text-[#79FF26]">
+                          @ {item.company}
+                        </span>
                       </p>
 
-                      {hasLinkedIn ? (
+                      {/* LinkedIn */}
+                      {hasLinkedIn && (
                         <a
                           href={item.linkedin}
                           target="_blank"
@@ -277,11 +439,14 @@ const PeopleTalk = () => {
                           onClick={(e) => e.stopPropagation()}
                           data-cursor-text="LinkedIn"
                         >
-                          <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                          <svg
+                            className="w-4 h-4 fill-current"
+                            viewBox="0 0 24 24"
+                          >
                             <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                           </svg>
                         </a>
-                      ) : null}
+                      )}
                     </div>
                   </motion.div>
                 );
@@ -290,9 +455,11 @@ const PeopleTalk = () => {
           </div>
         </div>
 
+        {/* Pagination Dots */}
         <div className="flex items-center gap-2 mb-6">
           {testimonials.map((item, index) => {
             const isActive = index === currentIndex;
+
             return (
               <button
                 key={item._id}
@@ -308,27 +475,47 @@ const PeopleTalk = () => {
                     height: 6,
                     opacity: isActive ? 1 : 0.25,
                   }}
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 30,
+                  }}
                 />
               </button>
             );
           })}
         </div>
 
+        {/* Navigation Buttons */}
         <div className="flex items-center gap-4">
+
+          {/* Previous */}
           <motion.button
-            whileHover={{ scale: 1.08, backgroundColor: "#ffffff" }}
+            whileHover={{
+              scale: 1.08,
+              backgroundColor: "#ffffff",
+            }}
             whileTap={{ scale: 0.94 }}
             onClick={handlePrev}
             className="w-10 h-10 bg-white rounded-full border border-gray-200 flex items-center justify-center text-[#112F47] shadow-sm transition-all"
             aria-label="Previous testimonial"
             data-cursor-text="Prev"
           >
-            <svg className="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            <svg
+              className="w-4 h-4 stroke-[2.5]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </motion.button>
 
+          {/* Next */}
           <motion.button
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.94 }}
@@ -338,9 +525,21 @@ const PeopleTalk = () => {
             data-cursor-text="Next"
           >
             <span className="absolute inset-0 rounded-full bg-[#9AF23A]" />
-            <svg className="absolute inset-0 -rotate-90" viewBox="0 0 40 40">
-              <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" />
-              {!isHovered ? (
+
+            <svg
+              className="absolute inset-0 -rotate-90"
+              viewBox="0 0 40 40"
+            >
+              <circle
+                cx="20"
+                cy="20"
+                r="18"
+                fill="none"
+                stroke="rgba(255,255,255,0.25)"
+                strokeWidth="2"
+              />
+
+              {!isHovered && !selectedTestimonial && (
                 <motion.circle
                   key={progressKey}
                   cx="20"
@@ -353,16 +552,147 @@ const PeopleTalk = () => {
                   strokeDasharray={113}
                   initial={{ strokeDashoffset: 113 }}
                   animate={{ strokeDashoffset: 0 }}
-                  transition={{ duration: AUTOPLAY_MS / 1000, ease: "linear" }}
+                  transition={{
+                    duration: AUTOPLAY_MS / 1000,
+                    ease: "linear",
+                  }}
                 />
-              ) : null}
+              )}
             </svg>
-            <svg className="relative w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+
+            <svg
+              className="relative w-4 h-4 stroke-[2.5]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 5l7 7-7 7"
+              />
             </svg>
           </motion.button>
         </div>
       </div>
+
+      {/* FULL TESTIMONIAL MODAL */}
+      <AnimatePresence>
+        {selectedTestimonial && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedTestimonial(null)}
+            className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Full testimonial review"
+          >
+            <motion.div
+              initial={{
+                opacity: 0,
+                scale: 0.9,
+                y: 20,
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.9,
+                y: 20,
+              }}
+              transition={{ duration: 0.25 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto bg-white rounded-3xl p-6 sm:p-9 shadow-2xl"
+            >
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setSelectedTestimonial(null)}
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
+                aria-label="Close testimonial"
+              >
+                ✕
+              </button>
+
+              {/* Client Profile */}
+              <div className="flex flex-col items-center text-center mb-6">
+                <div className="w-20 h-20 rounded-full p-1 bg-[#79FF26] shadow-md mb-3">
+                  <img
+                    src={getAssetUrl(
+                      selectedTestimonial.imageUrl
+                    )}
+                    alt={selectedTestimonial.name}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </div>
+
+                <h3 className="text-xl font-extrabold text-[#112F47]">
+                  {selectedTestimonial.name}
+                </h3>
+
+                <p className="text-sm text-gray-400 mt-1">
+                  {selectedTestimonial.jobTitle} @{" "}
+                  {selectedTestimonial.company}
+                </p>
+
+                {/* Rating */}
+                <div className="flex gap-1 mt-3 text-[#F3C63F]">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i}>
+                      {i < (selectedTestimonial.rating || 5)
+                        ? "★"
+                        : "☆"}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Complete Review */}
+              <div className="border-t border-gray-100 pt-6">
+                <div className="text-4xl font-serif text-[#79FF26] mb-2">
+                  &quot;
+                </div>
+
+                <p className="text-[#777] text-sm sm:text-base leading-8 whitespace-pre-wrap break-words">
+                  {selectedTestimonial.review}
+                </p>
+              </div>
+
+              {/* LinkedIn Profile */}
+              {selectedTestimonial.linkedin && (
+                <div className="mt-6 text-center">
+                  <a
+                    href={selectedTestimonial.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-[#112F47] text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-[#79FF26] hover:text-[#112F47] transition-all"
+                  >
+                    View LinkedIn Profile ↗
+                  </a>
+                </div>
+              )}
+
+              {/* Close Review */}
+              <div className="mt-7 text-center">
+                <button
+                  type="button"
+                  onClick={() => setSelectedTestimonial(null)}
+                  className="px-7 py-2.5 rounded-full bg-[#79FF26] text-[#112F47] font-bold text-sm hover:scale-105 transition-transform"
+                >
+                  Close Review
+                </button>
+              </div>
+
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
