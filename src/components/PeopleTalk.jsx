@@ -407,7 +407,7 @@ const PeopleTalk = () => {
                               e.stopPropagation();
                               setSelectedTestimonial(item);
                             }}
-                            className="mt-2 text-xs font-bold text-[#112F47] hover:text-[#79FF26] transition-colors underline underline-offset-4"
+                            className="mt-2 text-xs font-bold text-[#79FF26] transition-colors underline underline-offset-4"
                           >
                             Read Full Review
                           </button>
