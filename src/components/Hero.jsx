@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../services/api";
 import { ENDPOINTS } from "../config/endpoints";
-import img from "../assets/sanaullah.png";
+import img from "../assets/heros.png";
 import img1 from "../assets/Group.png";
 import micLogo from "../assets/Microphone.png";
 import { GoArrowUpRight } from "react-icons/go";
@@ -13,7 +13,7 @@ import { gsap } from "gsap";
 const INTRO_TEXT =
   "Hi, I'm Sanaullah, a passionate Full Stack MERN Developer based in Peshawar, Pakistan. " +
   "I specialize in building modern, responsive, and scalable web applications using MongoDB, " +
-  "Express.js, React.js, Node.js, JavaScript, Tailwind CSS, HTML, CSS, and REST APIs. " +
+  "Expressjs, Reactjs, Nodejs, JavaScript, Tailwind CSS, HTML, CSS, and REST APIs. " +
   "Currently I'm working on developing full-stack web applications while continuously " +
   "improving my skills and exploring new technologies. I'm passionate about creating clean, " +
   "user-friendly, and high-performance digital experiences that solve real-world problems.";
@@ -204,9 +204,9 @@ const HireModal = ({ onClose }) => {
               <a
                 href={`https://wa.me/923099369195?text=${encodeURIComponent(
                   "👋 Hi Sanaullah! I found your portfolio and would love to discuss a project with you. 🚀\n\n" +
-                  "💼 I’m looking for a skilled MERN stack developer to help bring my idea to life. " +
-                  "Could we talk about the project scope, timeline, and next steps? 🤝\n\n" +
-                  "📩 Please let me know when you’re available. Thank you!"
+                    "💼 I’m looking for a skilled MERN stack developer to help bring my idea to life. " +
+                    "Could we talk about the project scope, timeline, and next steps? 🤝\n\n" +
+                    "📩 Please let me know when you’re available. Thank you!",
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -380,80 +380,81 @@ const Hero = () => {
   /*  Only targets elements Framer Motion isn't already animating, so    */
   /*  the two libraries never fight over the same transform/opacity.     */
   /* ------------------------------------------------------------------ */
-  useGSAP(() => {
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+  useGSAP(
+    () => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-    tl.from(".hero-eyebrow-icon", {
-      opacity: 0,
-      scale: 0,
-      rotate: -90,
-      duration: 0.5,
-    })
-      .from(
-        ".hero-star",
-        {
-          opacity: 0,
-          scale: 0,
-          rotate: -180,
-          stagger: 0.08,
-          duration: 0.5,
-          ease: "back.out(2.5)",
-        },
-        "-=0.2",
-      )
-      .from(
-        ".customer-avatar",
-        {
-          opacity: 0,
-          x: -16,
-          stagger: 0.08,
-          duration: 0.4,
-        },
-        "-=0.3",
-      )
-      .from(
-        ".action-bar",
-        {
-          opacity: 0,
-          y: 24,
-          duration: 0.6,
-        },
-        "-=0.4",
-      );
+      tl.from(".hero-eyebrow-icon", {
+        opacity: 0,
+        scale: 0,
+        rotate: -90,
+        duration: 0.5,
+      })
+        .from(
+          ".hero-star",
+          {
+            opacity: 0,
+            scale: 0,
+            rotate: -180,
+            stagger: 0.08,
+            duration: 0.5,
+            ease: "back.out(2.5)",
+          },
+          "-=0.2",
+        )
+        .from(
+          ".customer-avatar",
+          {
+            opacity: 0,
+            x: -16,
+            stagger: 0.08,
+            duration: 0.4,
+          },
+          "-=0.3",
+        )
+        .from(
+          ".action-bar",
+          {
+            opacity: 0,
+            y: 24,
+            duration: 0.6,
+          },
+          "-=0.4",
+        );
 
+      //       useGSAP(() => {
+      //   gsap.from(".herologo", {
+      //     opacity: 0,
+      //     delay: 0.2,
+      //     duration: 2,
+      //     y: -500,
+      //   });
+      // }, { scope: containerRef });
 
-  //       useGSAP(() => {
-  //   gsap.from(".herologo", {
-  //     opacity: 0,
-  //     delay: 0.2,
-  //     duration: 2,
-  //     y: -500,
-  //   });
-  // }, { scope: containerRef });
-    
-    if (portraitFloatRef.current) {
-      gsap.to(portraitFloatRef.current, {
-        y: -14,
-        duration: 2.4,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
-    }
-  
+      if (portraitFloatRef.current) {
+        gsap.to(portraitFloatRef.current, {
+          y: -14,
+          duration: 2.4,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        });
+      }
 
-    // Soft breathing glow behind the portrait for extra depth
-    if (glowRef.current) {
-      gsap.to(glowRef.current, {
-        scale: 1.15,
-        opacity: 0.7,
-        duration: 2.6,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
-    }
-  }, { scope: containerRef });
+      // Soft breathing glow behind the portrait for extra depth
+      if (glowRef.current) {
+        gsap.to(glowRef.current, {
+          scale: 1.15,
+          opacity: 0.7,
+          duration: 2.6,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        });
+      }
+    },
+    { scope: containerRef },
+  );
 
   /* ------------------------------------------------------------------ */
   /*  Magnetic hover for the GitHub / Hire Me pill                       */
@@ -466,12 +467,30 @@ const Hero = () => {
     const hire = hireBtnRef.current;
     if (!bar || !github || !hire) return;
 
-    const setGithubX = gsap.quickTo(github, "x", { duration: 0.4, ease: "power3.out" });
-    const setGithubY = gsap.quickTo(github, "y", { duration: 0.4, ease: "power3.out" });
-    const setHireX = gsap.quickTo(hire, "x", { duration: 0.4, ease: "power3.out" });
-    const setHireY = gsap.quickTo(hire, "y", { duration: 0.4, ease: "power3.out" });
-    const setGithubScale = gsap.quickTo(github, "scale", { duration: 0.3, ease: "power3.out" });
-    const setHireScale = gsap.quickTo(hire, "scale", { duration: 0.3, ease: "power3.out" });
+    const setGithubX = gsap.quickTo(github, "x", {
+      duration: 0.4,
+      ease: "power3.out",
+    });
+    const setGithubY = gsap.quickTo(github, "y", {
+      duration: 0.4,
+      ease: "power3.out",
+    });
+    const setHireX = gsap.quickTo(hire, "x", {
+      duration: 0.4,
+      ease: "power3.out",
+    });
+    const setHireY = gsap.quickTo(hire, "y", {
+      duration: 0.4,
+      ease: "power3.out",
+    });
+    const setGithubScale = gsap.quickTo(github, "scale", {
+      duration: 0.3,
+      ease: "power3.out",
+    });
+    const setHireScale = gsap.quickTo(hire, "scale", {
+      duration: 0.3,
+      ease: "power3.out",
+    });
 
     const handleMove = (e) => {
       const rect = bar.getBoundingClientRect();
@@ -511,7 +530,7 @@ const Hero = () => {
   return (
     <>
       <section
-      ref={containerRef}
+        ref={containerRef}
         id="home"
         style={{ backgroundColor: "var(--pt-bg, #F3F8EF)" }}
         className="relative min-h-screen w-full pt-6 md:pt-28 pb-16 px-4 md:px-8 overflow-hidden transition-colors duration-500 flex items-center justify-center select-none bg-white"
@@ -559,9 +578,7 @@ const Hero = () => {
               transition={{ delay: 0.4 }}
               className=" hidden md:flex flex-col mt-16 max-w-[330px] h-[113px] bg-[#B8FF78] rounded-[4px] py-4 px-8 shadow-sm text-center items-center transition-all mx-auto"
             >
-              <p className="text-[#000000] text-[20px] mb-2">
-                Real Customer
-              </p>
+              <p className="text-[#000000] text-[20px] mb-2">Real Customer</p>
               <div className="flex items-center justify-center -space-x-1.5">
                 {[
                   "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80",
@@ -609,7 +626,10 @@ const Hero = () => {
               {/* Idle-float wrapper — separate node from the entrance <motion.div>
                   above, so GSAP's infinite y-bob never competes with Framer's
                   one-time mount transform on the parent. */}
-              <div ref={portraitFloatRef} className="relative w-full h-full will-change-transform">
+              <div
+                ref={portraitFloatRef}
+                className="relative w-full h-full will-change-transform"
+              >
                 <img
                   src={img}
                   alt="Sanaullah Portrait"
@@ -619,7 +639,11 @@ const Hero = () => {
                 {/* ROTATING BADGE */}
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 12,
+                    ease: "linear",
+                  }}
                   className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-24 h-24 z-20 flex items-center justify-center"
                 >
                   <svg className="w-full h-full" viewBox="0 0 100 100">
@@ -808,15 +832,13 @@ const Hero = () => {
               </div>
             </div>
 
-           <motion.div
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               className=" flex md:hidden flex-col mt-16 max-w-[330px] h-[113px] bg-[#B8FF78] rounded-[4px] py-4 px-8 shadow-sm text-center items-center transition-all mx-auto"
             >
-              <p className="text-[#000000] text-[20px] mb-2">
-                Real Customer
-              </p>
+              <p className="text-[#000000] text-[20px] mb-2">Real Customer</p>
               <div className="flex items-center justify-center -space-x-1.5">
                 {[
                   "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80",
@@ -840,7 +862,6 @@ const Hero = () => {
                 </div>
               </div>
             </motion.div>
-
 
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
